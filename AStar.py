@@ -6,7 +6,7 @@ class Graph:
         self._num = nodes[0].getNum()       # banyak node
         self._nodeList = [nodes[i] for i in range(self._num)]   # list of nodes
 
-        self._matrix = [[0 for j in range(getNum())] for i in range(getNum())]
+        self._matrix = [[-1 for j in range(getNum())] for i in range(getNum())]
         constructMatrix()
 
         self._dictionary = {}
@@ -28,7 +28,7 @@ class Graph:
     def resetNodes(self):
         for i in range(getNum()):
             self._nodeList[i].resetVal()
-            
+    
 
     # [internal] getter
     def getNum(self):
@@ -58,13 +58,39 @@ class Graph:
             return [startNode]
 
         closedList = [False for i in range(getNum())]
-        # openList = []  ; pakai PrioQueue
+        openList = PrioQueue()
         path = []
-        found = False
-        idxCurrentNode = getIndex(startNode)
+        idxGoalNode = getIndex(goalNode)
 
-        # openList.append(startNode)
+        idxCurrentNode = getIndex(startNode)
         getNode(idxCurrentNode).setGVal(0)
+        openList.enqueue((idxCurrentNode, getNode(idxCurrentNode).getFVal()))
+
+        while openList.getSize() > 0:
+            idxCurrentNode = openList.dequeue()[0]
+            if idxCurrentNode == idxGoalNode:
+                return
+            
+            closedList[idxCurrentNode] = True
+
+            for k in range(getNum()):
+                adjacentDistance = getWeight(idxCurrentNode, k)
+                if (adjacentDistance > 0):
+                    if closedList[k]:
+                        continue
+
+                    cost = getNode(idxCurrentNode).getGVal() + adjacentDistance
+                    if openList.hasNode(k) and cost < getNode(k).getGVal():
+                        # n in openList and path to k through currentNode < path to n previously
+                        openList.removeNode(k)
+                    if closedList[k] == True and cost < getNode(k).getGVal():
+                        # n in closedList and path to k through currentNode < path to n previously
+                        closedList[k] = False
+                    if not (openList.hasNode(k)) and closedList[k] == False:
+                        openList.enqueue(k, getNode(k).getFVal())
+                        getNode(k).setGVal(cost)
+                        getNode(k).setHVal(getNode(idxGoalNode))
+                        getNode(k).setFVal()
 
 
         return 1
@@ -100,7 +126,8 @@ class Node:
     def setGVal(self, val):
         self._gVal = val
         self.setFVal()
-    def setHVal(self, val):
+    def setHVal(self, goalNode):
+        val = euclidean(goalNode)
         self._hVal = val
     def setFVal(self):
         self._fVal = self._gVal + self._hVal
@@ -112,11 +139,49 @@ class Node:
     def euclidean(self, otherNode):
         return sqrt((self.getX() - otherNode.getX())**2 + (self.getY() - otherNode.getY())**2)
 
-'''
+
 class PrioQueue:
-    # PrioQueue of nodes, sorted by FVal
+    # PrioQueue of tuple (nodeIndex, FVal), sorted by FVal (ascending)
     def __init__ (self):
-'''
+        self._data = []
+        self._size = 0
+
+    def getSize(self):
+        return self._size
+    def isEmpty(self):
+        return self._size == 0
+
+    # Particular node operation
+    def hasNode(self, idxNode):
+        for i in range(getSize()):
+            if (self._data[i][0] == idxNode):
+                return True
+        return False
+    def removeNode(self, idxNode):
+        deletedIdx = -1
+        for i in range(getSize()):
+            if (self._data[i][0] == idxNode):
+                deletedIdx = i
+                break
+        if deletedIdx != -1:
+            del self._data[deletedIdx]
+
+    # Enqueue and Dequeue
+    def enqueue(self, node):
+        # add arbitrarily
+        self._data.append(node)
+    def dequeue(self):
+        idxMax = 0
+        for i in range(self._size):
+            if (self._data[i][1] > self._data[idxMax][1]):
+                idxMax = i
+        item = self._data[i]
+        del self._data[i]
+        return item
+
+
+    
+
 
 N = int(input("Banyak node: "))
 matrix = [[0 for j in range(N)] for i in range(N)]
