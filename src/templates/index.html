@@ -7,13 +7,14 @@
     <title>IF2211-Tucil3-PathFinder</title>
     <style>
         #map{
-            height: 400px;
+            height: 500px;
             width: 100%;
         }
     </style>
 </head>
 <body>
     <h1>IF2211-Tucil3-PathFinder</h1>
+    
     <div id = "map"></div>
     <script>
         function initMap(){
@@ -21,7 +22,13 @@
                 zoom:8,
                 center:{lat:-6.8333, lng:107.4833}
             }
+
             var map = new google.maps.Map(document.getElementById('map'), options);
+
+            var marker = new google.maps.Marker({
+                position:{lat:-6.8333, lng:107.4833},
+                map:map
+            });
         }
     </script>
     <script async defer

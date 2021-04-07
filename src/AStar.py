@@ -52,7 +52,7 @@ class Graph:
                 while row[offset] != " ":
                     offset += 1
                 tempNamaNode1 = row[0:offset]
-                idxNode1 = getIndex(tempNamaNode1)
+                idxNode1 = self.getIndex(tempNamaNode1)
 
                 # namaNode2
                 offset += 1
@@ -60,7 +60,7 @@ class Graph:
                 while row[offset] != " ":
                     offset += 1
                 tempNamaNode2 = row[startOffset:offset]
-                idxNode2 = getIndex(tempNamaNode2)
+                idxNode2 = self.getIndex(tempNamaNode2)
 
                 # weight
                 offset += 1
@@ -75,7 +75,7 @@ class Graph:
         '''
         for i in range(self.getNum()):
             for j in range(0, i):
-                distance = getNode(i).euclidean(getNode(j))
+                distance = self.getNode(i).euclidean(self.getNode(j))
                 self._matrix[i][j] = distance
                 self._matrix[j][i] = distance
         '''
@@ -103,8 +103,10 @@ class Graph:
 
     # node h g f setter
     def updateVal(self, idxCurrentNode, idxPrecNode, idxGoalNode):
-        currentNode = getNode(idxCurrentNode)
-        currentNode.setGVal(getNode(idxPrecNode).getGVal() + currentNode.getVal())
+        currentNode = self.getNode(idxCurrentNode)
+        currentNode.setHVal(getNode(idxGoalNode))
+        currentNode.setGVal(self.getNode(idxPrecNode).getGVal() + self.getWeight(idxPrecNode, idxCurrentNode))
+        currentNode.setFVal()
     '''
     def updateVal(self, currentNode, prec, goal):
         # currentNode, prec, goal: string, valid
@@ -131,6 +133,7 @@ class Graph:
         idxCurrentNode = getIndex(startNode)
         idxPrecNode = -1
         getNode(idxCurrentNode).setGVal(0)
+        getNode(idxCurrentNode).setFVal()
         openList.enqueue((idxCurrentNode, getNode(idxCurrentNode).getFVal()))
 
         while openList.getSize() > 0:
@@ -211,9 +214,8 @@ class Node:
     # setter
     def setGVal(self, val):
         self._gVal = val
-        self.setFVal()
     def setHVal(self, goalNode):
-        val = euclidean(goalNode)
+        val = self.euclidean(goalNode)
         self._hVal = val
     def setFVal(self):
         self._fVal = self._gVal + self._hVal
@@ -239,13 +241,13 @@ class PrioQueue:
 
     # Particular node operation
     def hasNode(self, idxNode):
-        for i in range(getSize()):
+        for i in range(self.getSize()):
             if (self._data[i][0] == idxNode):
                 return True
         return False
     def removeNode(self, idxNode):
         deletedIdx = -1
-        for i in range(getSize()):
+        for i in range(self.getSize()):
             if (self._data[i][0] == idxNode):
                 deletedIdx = i
                 break
