@@ -1,0 +1,8 @@
+GerbangDepanITB -6.89326 107.610421
+PertigaanSipil -6.893828 107.608454
+PertigaanSalman -6.893647 107.611954
+PertigaanBoromeus -6.893785 107.612942
+PertigaanDayangSumbiDago -6.88744 107.613582
+DayangSumbi -6.887248 107.611551
+PertigaanSabuga -6.887727 107.609918
+PertigaanSabugaBelakang -6.884924 107.611553

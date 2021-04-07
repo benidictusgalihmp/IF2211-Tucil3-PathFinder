@@ -1,0 +1,8 @@
+GerbangDepanITB PertigaanSipil
+GerbangDepanITB PertigaanSalman
+PertigaanSipil PertigaanSabuga
+PertigaanSabuga DayangSumbi
+PertigaanSalman PertigaanBoromeus
+PertigaanBoromeus PertigaanDayangSumbiDago
+PertigaanDayangSumbiDago DayangSumbi
+PertigaanSabugaBelakang DayangSumbi
