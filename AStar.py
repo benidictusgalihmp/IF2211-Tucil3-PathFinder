@@ -1,23 +1,84 @@
-from numpy.lib.scimath import sqrt
+#from numpy.lib.scimath import sqrt
 import sys
 
 class Graph:
     def __init__(self, nodes):
-        self._num = nodes[0].getNum()       # banyak node
-        self._nodeList = [nodes[i] for i in range(self._num)]   # list of nodes
+        self._num = nodes[0].getNumNodes()       # banyak node
+        self._nodeList = []
+        self.constructNodeList()   # list of nodes
 
-        self._matrix = [[-1 for j in range(getNum())] for i in range(getNum())]
-        constructMatrix()
+        self._matrix = [[-1 for j in range(self.getNum())] for i in range(self.getNum())]
+        self.constructMatrix()
 
         self._dictionary = {}
-        constructDictionary()
+        self.constructDictionary()
+
+    def constructNodeList(self):
+        with open("./nodes.txt") as file:
+            for row in file:
+                # namaNode
+                startOffset = 0
+                offset = 0
+                while row[offset] != " ":
+                    offset += 1
+                tempNamaNode = row[0:offset]
+
+                # latt
+                offset += 1
+                startOffset = offset
+                while row[offset] != " ":
+                    offset += 1
+                tempLatt = row[startOffset:offset]
+                tempLatt = float(tempLatt)
+
+                # long
+                offset += 1
+                startOffset = offset
+                while row[offset] != "\n":
+                    offset += 1
+                tempLong = row[startOffset:offset]
+                tempLong = float(tempLong)
+
+                tempNode = Node(tempNode, tempLatt, tempLong)
+                self._nodeList.append(tempNode)
 
     def constructMatrix(self):
-        for i in range(getNum()):
+        with open("./road.txt") as file:
+            n = 0
+            for row in file:
+                # namaNode1
+                startOffset = 0
+                offset = 0
+                while row[offset] != " ":
+                    offset += 1
+                tempNamaNode1 = row[0:offset]
+                idxNode1 = getIndex(tempNamaNode1)
+
+                # namaNode2
+                offset += 1
+                startOffset = offset
+                while row[offset] != " ":
+                    offset += 1
+                tempNamaNode2 = row[startOffset:offset]
+                idxNode2 = getIndex(tempNamaNode2)
+
+                # weight
+                offset += 1
+                startOffset = offset
+                while row[offset] != "\n":
+                    offset += 1
+                tempWeight = row[startOffset:offset]
+                tempWeight = float(tempWeight)
+
+                self._matrix[idxNode1][idxNode2] = tempWeight
+                self._matrix[idxNode2][idxNode1] = tempWeight
+        '''
+        for i in range(self.getNum()):
             for j in range(0, i):
                 distance = getNode(i).euclidean(getNode(j))
                 self._matrix[i][j] = distance
                 self._matrix[j][i] = distance
+        '''
     
     def constructDictionary(self):
         i = 0
@@ -26,7 +87,7 @@ class Graph:
             i += 1
 
     def resetNodes(self):
-        for i in range(getNum()):
+        for i in range(self.getNum()):
             self._nodeList[i].resetVal()
     
 
@@ -41,6 +102,10 @@ class Graph:
         return self._matrix[i][j]
 
     # node h g f setter
+    def updateVal(self, idxCurrentNode, idxPrecNode, idxGoalNode):
+        currentNode = getNode(idxCurrentNode)
+        currentNode.setGVal(getNode(idxPrecNode).getGVal() + currentNode.getVal())
+    '''
     def updateVal(self, currentNode, prec, goal):
         # currentNode, prec, goal: string, valid
         # currentNode dievaluasi dari prec node ke goal node
@@ -48,7 +113,8 @@ class Graph:
         idxPrec = getIndex(prec)
         idxGoal = getIndex(goal)
         currentNode.setGVal(getNode(idxPrec).getGVal() + currentNode.getGVal())
-    
+    '''
+
     ### A* Algorithm ###
     def aStar(self, startNode, goalNode):
         # Prekondisi: startNode (string) dan goalNode (string) valid
@@ -57,43 +123,63 @@ class Graph:
         if (startNode == goalNode):
             return [startNode]
 
-        closedList = [False for i in range(getNum())]
+        closedList = [False for i in range(self.getNum())]
         openList = PrioQueue()
-        path = []
+        trackback = {}
         idxGoalNode = getIndex(goalNode)
 
         idxCurrentNode = getIndex(startNode)
+        idxPrecNode = -1
         getNode(idxCurrentNode).setGVal(0)
         openList.enqueue((idxCurrentNode, getNode(idxCurrentNode).getFVal()))
 
         while openList.getSize() > 0:
+            idxPrecNode = idxCurrentNode
             idxCurrentNode = openList.dequeue()[0]
             if idxCurrentNode == idxGoalNode:
                 return
             
             closedList[idxCurrentNode] = True
 
-            for k in range(getNum()):
+            for k in range(self.getNum()):
                 adjacentDistance = getWeight(idxCurrentNode, k)
                 if (adjacentDistance > 0):
-                    if closedList[k]:
-                        continue
+                    #if closedList[k]:
+                    #    continue
 
                     cost = getNode(idxCurrentNode).getGVal() + adjacentDistance
-                    if openList.hasNode(k) and cost < getNode(k).getGVal():
-                        # n in openList and path to k through currentNode < path to n previously
-                        openList.removeNode(k)
-                    if closedList[k] == True and cost < getNode(k).getGVal():
-                        # n in closedList and path to k through currentNode < path to n previously
-                        closedList[k] = False
+                    if cost < getNode(k).getGVal():
+                        # ada jalur yang lebih pendek dari startNode ke k
+                        # memungkinkan k untuk di-ekspansi [lagi], walaupun sudah pernah ada di openList dan/atau closedList
+                        if openList.hasNode(k):
+                            # k in openList
+                            # hapus k dari kemungkinan ekspansi lain *selain* dari currentNode
+                            openList.removeNode(k)
+                        if closedList[k] == True:
+                            # k in closedList
+                            # enable k to be expanded again
+                            closedList[k] = False
                     if not (openList.hasNode(k)) and closedList[k] == False:
+                        # k not in openList and closedList
+                        # update new value, masukkan ke PrioQueue, masukkan ke trackback
+                        self.updateVal(k, idxCurrentNode, idxGoalNode) 
                         openList.enqueue(k, getNode(k).getFVal())
-                        getNode(k).setGVal(cost)
-                        getNode(k).setHVal(getNode(idxGoalNode))
-                        getNode(k).setFVal()
+                        trackback.update({idxCurrentNode: idxPrecNode})
 
-
-        return 1
+        # trackback jalur dari startNode ke goalNode
+        if idxGoalNode not in trackback.keys():
+            # tidak ada jalur dari startNode ke goalNode
+            return []
+        else:
+            path = []
+            idxStartNode = getIndex(startNode)
+            idxNode = idxGoalNode
+            while idxNode != idxStartNode:
+                path.append(idxNode)
+                idxNode = trackback.get(idxNode)
+            path.append(idxNode)
+            path.reverse()
+            return path
 
 class Node:
     _num = 0    # static variable banyaknya node
@@ -113,7 +199,7 @@ class Node:
         return self._xCoor
     def getY(self):
         return self._YCoor
-    def getNum(self):
+    def getNumNodes(self):
         return Node._num
     def getGVal(self):
         return self._gVal
@@ -137,7 +223,7 @@ class Node:
         self.setFVal()
     
     def euclidean(self, otherNode):
-        return sqrt((self.getX() - otherNode.getX())**2 + (self.getY() - otherNode.getY())**2)
+        return ((self.getX() - otherNode.getX())**2 + (self.getY() - otherNode.getY())**2)**0.5
 
 
 class PrioQueue:
@@ -180,8 +266,12 @@ class PrioQueue:
         return item
 
 
-    
-
+'''    
+def test():
+    with open("junk.txt") as file:
+        for row in file:
+            print(row[:-1])
+test()
 
 N = int(input("Banyak node: "))
 matrix = [[0 for j in range(N)] for i in range(N)]
@@ -189,3 +279,4 @@ matrix = [[0 for j in range(N)] for i in range(N)]
 for i in range(N):
     for j in range(0, i):
         matrix[i][j] = int(input("M[{}][{}] = ".format(i, j)))
+'''
