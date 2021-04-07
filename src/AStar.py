@@ -183,6 +183,17 @@ class Graph:
             path.append(idxNode)
             path.reverse()
             return path
+    
+    def calculateDistance(self, path):
+        # menghitung jarak tempuh dari jalur hasil algoritma A*
+        if path.len() < 2:
+            return 0
+        else:
+            distance = 0
+            for idxNode1 in range(path.len() - 1):
+                idxNode2 = idxNode1 + 1
+                distance += self.getWeight(path[idxNode1], path[idxNode2])
+            return distance
 
 class Node:
     _num = 0    # static variable banyaknya node
