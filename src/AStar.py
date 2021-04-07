@@ -6,16 +6,16 @@ class Graph:
         self._num = nodes[0].getNum()       # banyak node
         self._nodeList = [nodes[i] for i in range(self._num)]   # list of nodes
 
-        self._matrix = [[-1 for j in range(getNum())] for i in range(getNum())]
-        constructMatrix()
+        self._matrix = [[-1 for j in range(self.getNum())] for i in range(self.getNum())]
+        self.constructMatrix()
 
         self._dictionary = {}
-        constructDictionary()
+        self.constructDictionary()
 
     def constructMatrix(self):
-        for i in range(getNum()):
+        for i in range(self.getNum()):
             for j in range(0, i):
-                distance = getNode(i).euclidean(getNode(j))
+                distance = self.getNode(i).euclidean(self.getNode(j))
                 self._matrix[i][j] = distance
                 self._matrix[j][i] = distance
     
@@ -26,7 +26,7 @@ class Graph:
             i += 1
 
     def resetNodes(self):
-        for i in range(getNum()):
+        for i in range(self.getNum()):
             self._nodeList[i].resetVal()
     
 
@@ -44,10 +44,10 @@ class Graph:
     def updateVal(self, currentNode, prec, goal):
         # currentNode, prec, goal: string, valid
         # currentNode dievaluasi dari prec node ke goal node
-        idxCurrentNode = getIndex(currentNode)
-        idxPrec = getIndex(prec)
-        idxGoal = getIndex(goal)
-        currentNode.setGVal(getNode(idxPrec).getGVal() + currentNode.getGVal())
+        idxCurrentNode = self.getIndex(currentNode)
+        idxPrec = self.getIndex(prec)
+        idxGoal = self.getIndex(goal)
+        currentNode.setGVal(self.getNode(idxPrec).getGVal() + currentNode.getGVal())
     
     ### A* Algorithm ###
     def aStar(self, startNode, goalNode):
@@ -57,14 +57,14 @@ class Graph:
         if (startNode == goalNode):
             return [startNode]
 
-        closedList = [False for i in range(getNum())]
+        closedList = [False for i in range(self.getNum())]
         openList = PrioQueue()
         path = []
-        idxGoalNode = getIndex(goalNode)
+        idxGoalNode = self.getIndex(goalNode)
 
-        idxCurrentNode = getIndex(startNode)
-        getNode(idxCurrentNode).setGVal(0)
-        openList.enqueue((idxCurrentNode, getNode(idxCurrentNode).getFVal()))
+        idxCurrentNode = self.getIndex(startNode)
+        self.getNode(idxCurrentNode).setGVal(0)
+        openList.enqueue((idxCurrentNode, self.getNode(idxCurrentNode).getFVal()))
 
         while openList.getSize() > 0:
             idxCurrentNode = openList.dequeue()[0]
@@ -73,24 +73,24 @@ class Graph:
             
             closedList[idxCurrentNode] = True
 
-            for k in range(getNum()):
-                adjacentDistance = getWeight(idxCurrentNode, k)
+            for k in range(self.getNum()):
+                adjacentDistance = self.getWeight(idxCurrentNode, k)
                 if (adjacentDistance > 0):
                     if closedList[k]:
                         continue
 
-                    cost = getNode(idxCurrentNode).getGVal() + adjacentDistance
-                    if openList.hasNode(k) and cost < getNode(k).getGVal():
+                    cost = self.getNode(idxCurrentNode).getGVal() + adjacentDistance
+                    if openList.hasNode(k) and cost < self.getNode(k).getGVal():
                         # n in openList and path to k through currentNode < path to n previously
                         openList.removeNode(k)
-                    if closedList[k] == True and cost < getNode(k).getGVal():
+                    if closedList[k] == True and cost < self.getNode(k).getGVal():
                         # n in closedList and path to k through currentNode < path to n previously
                         closedList[k] = False
                     if not (openList.hasNode(k)) and closedList[k] == False:
-                        openList.enqueue(k, getNode(k).getFVal())
-                        getNode(k).setGVal(cost)
-                        getNode(k).setHVal(getNode(idxGoalNode))
-                        getNode(k).setFVal()
+                        openList.enqueue(k, self.getNode(k).getFVal())
+                        self.getNode(k).setGVal(cost)
+                        self.getNode(k).setHVal(self.getNode(idxGoalNode))
+                        self.getNode(k).setFVal()
 
 
         return 1
@@ -127,7 +127,7 @@ class Node:
         self._gVal = val
         self.setFVal()
     def setHVal(self, goalNode):
-        val = euclidean(goalNode)
+        val = self.euclidean(goalNode)
         self._hVal = val
     def setFVal(self):
         self._fVal = self._gVal + self._hVal
@@ -153,13 +153,13 @@ class PrioQueue:
 
     # Particular node operation
     def hasNode(self, idxNode):
-        for i in range(getSize()):
+        for i in range(self.getSize()):
             if (self._data[i][0] == idxNode):
                 return True
         return False
     def removeNode(self, idxNode):
         deletedIdx = -1
-        for i in range(getSize()):
+        for i in range(self.getSize()):
             if (self._data[i][0] == idxNode):
                 deletedIdx = i
                 break
