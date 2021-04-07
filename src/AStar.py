@@ -2,10 +2,11 @@
 import sys
 
 class Graph:
-    def __init__(self, nodes):
-        self._num = nodes[0].getNumNodes()       # banyak node
+    def __init__(self):
+        
         self._nodeList = []
         self.constructNodeList()   # list of nodes
+        self._num = self._nodeList[0].getNumNodes()       # banyak node
 
         self._matrix = [[-1 for j in range(self.getNum())] for i in range(self.getNum())]
         self.constructMatrix()
@@ -14,7 +15,7 @@ class Graph:
         self.constructDictionary()
 
     def constructNodeList(self):
-        with open("./nodes.txt") as file:
+        with open("../test/NodeDetails1.txt") as file:
             for row in file:
                 # namaNode
                 startOffset = 0
@@ -43,7 +44,7 @@ class Graph:
                 self._nodeList.append(tempNode)
 
     def constructMatrix(self):
-        with open("./road.txt") as file:
+        with open("../test/MatrixAdjency1.txt") as file:
             n = 0
             for row in file:
                 # namaNode1
@@ -63,7 +64,7 @@ class Graph:
                 idxNode2 = self.getIndex(tempNamaNode2)
 
                 # weight
-                tempWeight = getNode(idxNode1).euclidean(getNode(idxNode2))
+                tempWeight = self.getNode(idxNode1).euclidean(self.getNode(idxNode2))
 
                 self._matrix[idxNode1][idxNode2] = tempWeight
                 self._matrix[idxNode2][idxNode1] = tempWeight
@@ -99,7 +100,7 @@ class Graph:
     # node h g f setter
     def updateVal(self, idxCurrentNode, idxPrecNode, idxGoalNode):
         currentNode = self.getNode(idxCurrentNode)
-        currentNode.setHVal(getNode(idxGoalNode))
+        currentNode.setHVal((idxGoalNode))
         currentNode.setGVal(self.getNode(idxPrecNode).getGVal() + self.getWeight(idxPrecNode, idxCurrentNode))
         currentNode.setFVal()
     '''
@@ -123,13 +124,13 @@ class Graph:
         closedList = [False for i in range(self.getNum())]
         openList = PrioQueue()
         trackback = {}
-        idxGoalNode = getIndex(goalNode)
+        idxGoalNode = self.getIndex(goalNode)
 
-        idxCurrentNode = getIndex(startNode)
+        idxCurrentNode = self.getIndex(startNode)
         idxPrecNode = -1
-        getNode(idxCurrentNode).setGVal(0)
-        getNode(idxCurrentNode).setFVal()
-        openList.enqueue((idxCurrentNode, getNode(idxCurrentNode).getFVal()))
+        self.getNode(idxCurrentNode).setGVal(0)
+        self.getNode(idxCurrentNode).setFVal()
+        openList.enqueue((idxCurrentNode, self.getNode(idxCurrentNode).getFVal()))
 
         while openList.getSize() > 0:
             idxPrecNode = idxCurrentNode
@@ -140,13 +141,13 @@ class Graph:
             closedList[idxCurrentNode] = True
 
             for k in range(self.getNum()):
-                adjacentDistance = getWeight(idxCurrentNode, k)
+                adjacentDistance = self.getWeight(idxCurrentNode, k)
                 if (adjacentDistance > 0):
                     #if closedList[k]:
                     #    continue
 
-                    cost = getNode(idxCurrentNode).getGVal() + adjacentDistance
-                    if cost < getNode(k).getGVal():
+                    cost = self.getNode(idxCurrentNode).getGVal() + adjacentDistance
+                    if cost < self.getNode(k).getGVal():
                         # ada jalur yang lebih pendek dari startNode ke k
                         # memungkinkan k untuk di-ekspansi [lagi], walaupun sudah pernah ada di openList dan/atau closedList
                         if openList.hasNode(k):
@@ -161,7 +162,7 @@ class Graph:
                         # k not in openList and closedList
                         # update new value, masukkan ke PrioQueue, masukkan ke trackback
                         self.updateVal(k, idxCurrentNode, idxGoalNode) 
-                        openList.enqueue(k, getNode(k).getFVal())
+                        openList.enqueue(k, self.getNode(k).getFVal())
                         trackback.update({idxCurrentNode: idxPrecNode})
 
         # trackback jalur dari startNode ke goalNode
@@ -170,7 +171,7 @@ class Graph:
             return []
         else:
             path = []
-            idxStartNode = getIndex(startNode)
+            idxStartNode = self.getIndex(startNode)
             idxNode = idxGoalNode
             while idxNode != idxStartNode:
                 path.append(idxNode)
