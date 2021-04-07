@@ -57,18 +57,13 @@ class Graph:
                 # namaNode2
                 offset += 1
                 startOffset = offset
-                while row[offset] != " ":
+                while row[offset] != "\n":
                     offset += 1
                 tempNamaNode2 = row[startOffset:offset]
                 idxNode2 = self.getIndex(tempNamaNode2)
 
                 # weight
-                offset += 1
-                startOffset = offset
-                while row[offset] != "\n":
-                    offset += 1
-                tempWeight = row[startOffset:offset]
-                tempWeight = float(tempWeight)
+                tempWeight = getNode(idxNode1).euclidean(getNode(idxNode2))
 
                 self._matrix[idxNode1][idxNode2] = tempWeight
                 self._matrix[idxNode2][idxNode1] = tempWeight

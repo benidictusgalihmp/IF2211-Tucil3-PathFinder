@@ -4,5 +4,5 @@ nodeB -6.866931 107.408579
 nodeC -6.866942 107.408553
 
 # road.txt
-nodeA nodeB 103
-nodeA nodeC 203
+nodeA nodeB
+nodeA nodeC
